@@ -45,7 +45,7 @@ def convert_int_en_toutte_lettre(number): # fontion
 
 
 
-# Variables pour la section "Bénéficiaire des versements" a chercher dans la BDD une fois qu'elle est fonctionelle
+# Variables pour la section "Bénéficiaire des versements" à chercher dans la BDD une fois qu'elle est fonctionnelle
 asso_nom = "111 arts"
 asso_nb_rue = 12
 asso_nom_rue = "rue de rue"
@@ -58,7 +58,7 @@ asso_date_reco_utilite_publique = "11/15/1234"
 
 id_cerfa = 324
 
-# Variables pour la section "Donateur" a chercher dans la BDD une fois qu'elle est fonctionelle
+# Variables pour la section "Donateur" à chercher dans la BDD une fois qu'elle est fonctionnelle
 donateur_nom = 'Doe'
 donateur_prenoms = 'John'
 donateur_Adresse = '55 rue de rue ' # N° + Rue
@@ -67,11 +67,16 @@ donateur_commune = 'Tourcoing'
 
 
 
-# Variables dons a récupérer depuis la DB
-don_montant = 0
+# Variables pour la section "dons" à récupérer depuis la BDD
+don_montant = 5
 don_montant_toute_lettre = convert_decimal_en_toutte_lettre(don_montant)
 don_datte_versement = "date"
-print(convert_decimal_en_toutte_lettre(don_montant))
+
+forme_du_don = "acte_authentique" # acte_authentique || acte_sous_seing_prive || declaration_de_don_manuel || autres
+nature_du_don = "numeraire" # numeraire || titres_de_societes_cotes || autres
+mode_de_versement = "cheque" # espece || cheque || cb
+
+
 # Date et signature
 date_us = datetime.date(datetime.now())
 date_ue = date_us.strftime("%d-%m-%Y")
@@ -81,7 +86,7 @@ date_ue = date_us.strftime("%d-%m-%Y")
 reader = PdfReader("data/titre_dons_organisme_interet_general.pdf")
 writer = PdfWriter()
 
-# Importe des pages (note il faut toujours importer toutes les pages même si on ne les modifie pas, commence a 0)
+# Importe des pages (note : il faut toujours importer toutes les pages même si l’on ne les modifie pas, commence à 0)
 writer.add_page(reader.pages[0])
 fields = reader.get_form_text_fields()
 print(fields)
@@ -138,6 +143,13 @@ def fill_cerfa():
         writer.pages[1],{"Commune_2": donateur_commune}
     )
 
+    # Coche la case "Association..." || Attention il existe deux valeurs communes Yes et On.
+    # Pour le savoir, il faut aller dans un navigateur et inspecter la case. exportvalue='On' ou Yes
+    writer.update_page_form_field_values(
+        writer.pages[0], {"Association ou fondation reconnue dutilité publique par décret en date du": "On"}
+    )
+
+
     # Don Page 2
     writer.update_page_form_field_values(
         writer.pages[1],{"Euros": don_montant}
@@ -148,16 +160,82 @@ def fill_cerfa():
     writer.update_page_form_field_values(
         writer.pages[1],{"date4": don_datte_versement}
     )
+
+    # Casses à cocher forme du don
+    match forme_du_don:
+        case "acte_authentique":
+            print("acte_authentique")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Acte authentique": "On"}
+            )
+        case "acte_sous_seing_prive":
+            print("acte_sous_seing_prive")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Acte sous seing privé": "On"}
+            )        
+        case "declaration_de_don_manuel":
+            print("declaration_de_don_manuel")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Déclaration de don manuel": "On"}
+            )
+        case "autres":
+            print("autres")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Autres": "On"}
+            )
+        case _:
+            print("Error")
+
+    # Casses à cocher nature du don
+    match nature_du_don:
+        case "numeraire":
+            print("numeraire")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Numéraire": "On"}
+            )
+        case "titres_de_societes_cotes":
+            print("titres_de_societes_cotes")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Titres de sociétés cotés": "On"}
+            )        
+        case "autres":
+            print("autres")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Autres 4": "On"}
+            )
+        case _:
+            print("Error")
+
+    # Casses à cocher mode de versement
+    match mode_de_versement:
+        case "espece":
+            print("espece")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Remise despèces": "On"}
+            )
+        case "cheque":
+            print("cheque")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Chèque": "On"}
+            )        
+        case "cb":
+            print("cb")
+            writer.update_page_form_field_values(
+                writer.pages[1], {"Virement prélèvement carte bancaire": "On"}
+            )
+        case _:
+            print("Error")
+
+
+
     writer.update_page_form_field_values(
         writer.pages[1],{"date5": date_ue}
     )
 
 
-
-
 fill_cerfa()
 
-# crée et enregistre le PDF "CERFA a imprimer n°XXX.pdf".
+# Crée et enregistre le PDF "CERFA à imprimé n°XXX.pdf".
 with open("data/CERFA N°"+  str(id_cerfa)+ " "  +donateur_prenoms + " " + donateur_nom+ ".pdf", "wb") as output_stream:
     writer.write(output_stream)
     meta = reader.metadata
