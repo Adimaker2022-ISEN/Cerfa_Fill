@@ -83,9 +83,24 @@ Le programme ci-dessus modifie les champs :
 
 ![image](https://user-images.githubusercontent.com/46867831/211910854-64a19a50-b5ab-4ead-8b89-c23b3a10d82a.png)
 
+## Casses a cocher
+Il existe plusieurs standards pour signaler qu'une casse est cocher ou vrai. Pour savoir la quelle utiliser : Ouvrir le pdf dans un navigateur -> inspecter l'éllément -> Sélectionez la case a coher
+
+![Code_PCNx8zMcFG](https://user-images.githubusercontent.com/46867831/215884924-92c7107d-2966-4157-ac76-dada14beb9e0.png)
+1. Clé de validation
+2. Le nom du champ
+
+Exemple:
+//
+writer.update_page_form_field_values(
+	writer.pages[1], {"Case1": "On"}
+)
+//
+Le code ci-dessus assume que 1. La clée de validation est "On" (Note : elle peut être aussi "Yes") 2. le nom du cham est "Case1"
+
 ### ToDo :
 
 - [ ] Remplir des champs d'images (pour la signature)
-- [ ] Remplir des champs à cocher [x] [ ]
+- [x] Remplir des champs à cocher [x] [ ]
 
 Auteur : Antoine Chatelain 12/01/2023
