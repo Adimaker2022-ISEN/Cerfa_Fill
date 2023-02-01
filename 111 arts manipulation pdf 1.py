@@ -2,6 +2,7 @@ from pypdf import PdfReader
 from pypdf import PdfWriter
 from datetime import datetime
 
+
 def convert_decimal_en_toutte_lettre(number):
     number = round(number, 2)
     int_part = int(number)
@@ -11,52 +12,66 @@ def convert_decimal_en_toutte_lettre(number):
     return int_part_text + ", " + decimal_part_text + " Euros"
 
 def convert_int_en_toutte_lettre(number): # fontion
-    ones = ["", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix", "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"]
+#def int_to_words(n):
+    if number == 0:
+        return "zéro"
+    
+    if number < 0:
+        return "Error"
+    
+    units = ["", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix",
+             "onze", "douze", "treize", "quatorze", "quinze", "seize", "dix-sept", "dix-huit", "dix-neuf"]
     tens = ["", "", "vingt", "trente", "quarante", "cinquante", "soixante", "soixante-dix", "quatre-vingt", "quatre-vingt-dix"]
+    thousands = ["", "mille", "deux mille", "trois mille", "quatre mille", "cinq mille", "six mille", "sept mille", "huit mille", "neuf mille"]
+    
     if number < 20:
-        return ones[number]
+        return units[number]
+    
     if number < 100:
-        if number % 10 == 0:
-            return tens[number // 10]
-        elif number // 10 == 7 or number // 10 == 9:
-            if number % 10 == 1:
-                return tens[number // 10] + "-et-" + ones[number % 10]
-            else:
-                return tens[number // 10] + "-" + ones[number % 10]
+        tens_val = number // 10
+        units_val = number % 10
+        tens_str = tens[tens_val]
+        units_str = units[units_val]
+        if tens_val == 7 or tens_val == 9:
+            return tens_str + "-" + units_str
         else:
-            return tens[number // 10] + "-" + ones[number % 10]
+            return tens_str + " " + units_str
+        
     if number < 1000:
-        if number % 100 == 0:
-            return ones[number // 100] + " cent"
+        hundreds = number // 100
+        
+        remainder = number % 100
+        if hundreds ==1:
+            if remainder == 0:
+                return "cent "
+            else:
+                return " cent " + convert_int_en_toutte_lettre(remainder)
+        else:      
+            if remainder == 0:
+                return convert_int_en_toutte_lettre(hundreds) + " cent "  
+            else:
+                return convert_int_en_toutte_lettre(hundreds) + " cent " + convert_int_en_toutte_lettre(remainder)
+        
+    if number < 100000:
+        thousands_val = number // 1000
+        remainder = number % 1000
+        if remainder == 0:
+            return thousands[thousands_val]
         else:
-            return ones[number // 100] + " cent " + convert_int_en_toutte_lettre(number % 100)
-    if number < 1000000:
-        if number % 1000 == 0:
-            return convert_int_en_toutte_lettre(number // 1000) + " mille"
-        else:
-            return convert_int_en_toutte_lettre(number // 1000) + " mille " + convert_int_en_toutte_lettre(number % 1000)
-    if number < 1000000000:
-        if number % 1000000 == 0:
-            return convert_int_en_toutte_lettre(number // 1000000) + " million"
-        else:
-            return convert_int_en_toutte_lettre(number // 1000000) + " million " + convert_int_en_toutte_lettre(number % 1000000)
-    return convert_int_en_toutte_lettre(number // 1000000000) + " milliard" + ('' if number % 1000000000 == 0 else ' ' + convert_int_en_toutte_lettre(number % 1000000000))
+            return thousands[thousands_val] + " " + convert_int_en_toutte_lettre(remainder)
 
 
 
 
 # Variables pour la section "Bénéficiaire des versements" à chercher dans la BDD une fois qu'elle est fonctionnelle
-asso_nom = "111 arts"
-asso_nb_rue = 12
-asso_nom_rue = "rue de rue"
+asso_nom = "Les 111 des Arts Lille"
+asso_nb_rue = 27
+asso_nom_rue = "Rue Jean Bart"
 asso_CP = "59000" #Code postal
-asso_commune = "lille"
-
-asso_date_pub_journal_officiel = "12/15/1234"
-asso_date_reco_utilite_publique = "11/15/1234"
+asso_commune = "Lille"
 
 
-id_cerfa = 324
+id_cerfa = 124
 
 # Variables pour la section "Donateur" à chercher dans la BDD une fois qu'elle est fonctionnelle
 donateur_nom = 'Doe'
@@ -68,11 +83,11 @@ donateur_commune = 'Tourcoing'
 
 
 # Variables pour la section "dons" à récupérer depuis la BDD
-don_montant = 5
-don_montant_toute_lettre = convert_decimal_en_toutte_lettre(don_montant)
+don_montant = 9999
+don_montant_toute_lettre = convert_int_en_toutte_lettre(don_montant)
 don_datte_versement = "date"
 
-forme_du_don = "acte_authentique" # acte_authentique || acte_sous_seing_prive || declaration_de_don_manuel || autres
+forme_du_don = "declaration_de_don_manuel" # acte_authentique || acte_sous_seing_prive || declaration_de_don_manuel || autres
 nature_du_don = "numeraire" # numeraire || titres_de_societes_cotes || autres
 mode_de_versement = "cheque" # espece || cheque || cb
 
@@ -80,7 +95,7 @@ mode_de_versement = "cheque" # espece || cheque || cb
 # Date et signature
 date_us = datetime.date(datetime.now())
 date_ue = date_us.strftime("%d-%m-%Y")
-
+date_annee = date_us.strftime("%Y")
 
 # Fichiers d'entrée
 reader = PdfReader("data/titre_dons_organisme_interet_general.pdf")
@@ -89,13 +104,11 @@ writer = PdfWriter()
 # Importe des pages (note : il faut toujours importer toutes les pages même si l’on ne les modifie pas, commence à 0)
 writer.add_page(reader.pages[0])
 fields = reader.get_form_text_fields()
-print(fields)
+
 writer.add_page(reader.pages[1])
 
 
 def fill_cerfa():
-
-    
 
     # Bénéficiaire des versements Page 1
     writer.update_page_form_field_values(
@@ -146,7 +159,7 @@ def fill_cerfa():
     # Coche la case "Association..." || Attention il existe deux valeurs communes Yes et On.
     # Pour le savoir, il faut aller dans un navigateur et inspecter la case. exportvalue='On' ou Yes
     writer.update_page_form_field_values(
-        writer.pages[0], {"Association ou fondation reconnue dutilité publique par décret en date du": "On"}
+        writer.pages[0], {"Oeuvre ou organisme dintérêt général": "On"}
     )
 
 
