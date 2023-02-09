@@ -17,9 +17,12 @@ Ce repository héberge des exemples de codes qui permettent de remplir le CERFA
 ## Utilisation
 
 Dans un fichier python déclare
+``` python
+from pypdf import PdfReader
+from pypdf import PdfWriter
+```
 
-    from  pypdf  import  PdfReader
-	from  pypdf  import  PdfWriter
+
 
 *PdfReader* est utilisé pour récupérer des informations dans un fichier PDF (nombre de pages, auteur...)
 *PdfWriter* est utilisé pour créer et faire des ajouts à un fichier PDF (ajout d'une page, remplissages de champs interactifs...)
@@ -27,52 +30,52 @@ Dans un fichier python déclare
 ### Manipulation Metadata
 
 #### Lecture de Metadata
+``` python
+from pypdf import PdfReader
 
-    from pypdf import PdfReader
+reader = PdfReader("example.pdf")
+meta = reader.metadata
 
-    reader = PdfReader("example.pdf")
-
-    meta = reader.metadata
-
-    print(len(reader.pages))
-
-    print(meta.author)
-    print(meta.creator)
-    print(meta.title)
+print(len(reader.pages))
+print(meta.author)
+print(meta.creator)
+print(meta.title)
+```
 Le code ci-dessus permet d'écrire dans le terminal certaines des metadata (note elles peuvent avoir la valeur*None*)
 
 ### Manipulation de formulaires
 
 La librairie permet aussi de remplir les champs interactifs d'un fichier PDF
+``` python
+from  pypdf  import  PdfReader
+from  pypdf  import  PdfWriter
 
-    from  pypdf  import  PdfReader
-    from  pypdf  import  PdfWriter
+# Fichier d'entrée
+reader = PdfReader("data/titre_dons_organisme_interet_general.pdf")
+writer = PdfWriter()
 
-    # Fichier d'entrée
-    reader = PdfReader("data/titre_dons_organisme_interet_general.pdf")
-    writer = PdfWriter()
+writer.add_page(reader.pages[0])
+writer.add_page(reader.pages[1])
 
-    writer.add_page(reader.pages[0])
-    writer.add_page(reader.pages[1])
+fields = reader.get_fields()
+print(fields)
 
-    fields = reader.get_fields()
-    print(fields)
-
-    writer.update_page_form_field_values(
-	    writer.pages[0], {"Numéro dordre du reçu": "ADIMAKER"}
+writer.update_page_form_field_values(
+    writer.pages[0], {"Numéro dordre du reçu": "ADIMAKER"}
     )
 
-    writer.update_page_form_field_values(
-	    writer.pages[0], {"N": "18"}
+writer.update_page_form_field_values(
+    writer.pages[0], {"N": "18"}
     )
 
-    writer.update_page_form_field_values(
-	    writer.pages[0], {"Rue": "Rue Saint-Jean-Baptiste de la Salle"}
+writer.update_page_form_field_values(
+    writer.pages[0], {"Rue": "Rue Saint-Jean-Baptiste de la Salle"}
     )
 
-    # crée et enregistre le PDF "CERFA a imprimer n°XXX.pdf".
-    with  open("data/CERFA a imprimer n°XXX.pdf", "wb") as  output_stream:
-	    writer.write(output_stream)
+# crée et enregistre le PDF "CERFA a imprimer n°XXX.pdf".
+with  open("data/CERFA a imprimer n°XXX.pdf", "wb") as  output_stream:
+    writer.write(output_stream)
+```
 Le programme ci-dessus modifie les champs :
 
 1. Numéro dordre du reçu
