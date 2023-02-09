@@ -100,7 +100,7 @@ writer.update_page_form_field_values(
 	writer.pages[1], {"Case1": "On"}
 )
 ```
-Le code ci-dessus assume que 1. La clée de validation est "On" (Note : elle peut être aussi "Yes") 2. le nom du champ est "Case1"
+Le code ci-dessus assume que 1. La clée de validation est "On" (Note : elle peut être aussi "Yes") 2. le nom du champ est "Case1" et que la case se tiue sur la page 2 du codument (on compte a partir de Zéro)
 
 ### ToDo :
 
